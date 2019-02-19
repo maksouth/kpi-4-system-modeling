@@ -1,0 +1,10 @@
+.idea
+*.iml
+*.iws
+*.eml
+
+# Backups
+*~
+
+out/
+.gradle
