@@ -1,4 +1,4 @@
-package lab1.simsimple;
+package lab2.simsimple;
 
 import java.util.Comparator;
 import java.util.Map;

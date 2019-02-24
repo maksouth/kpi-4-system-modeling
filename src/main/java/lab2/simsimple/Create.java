@@ -1,4 +1,4 @@
-package lab1.simsimple;
+package lab2.simsimple;
 
 public class Create extends Element {
 
