@@ -1,68 +1,68 @@
 package lab2.simsimple;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Model {
     private ArrayList<Element> list;
-    private double tnext, tcurr;
+    private double currentTime;
     private int event;
 
     Model(ArrayList<Element> elements) {
         list = elements;
-        tnext = 0.0;
+        currentTime = 0.0;
         event = 0;
-        tcurr = tnext;
     }
 
-    public void simulate(double time) {
-        while (tcurr < time) {
-            tnext = Double.MAX_VALUE;
-            for (Element e : list) {
-                if (e.getTnext() < tnext) {
-                    tnext = e.getTnext();
-                    event = e.getId();
-                }
-            }
-            System.out.println("\nIt's time for event in " +
-                    list.get(event).getName() +
-                    ", time = " + tnext);
+    public void simulate(double totalSimulationTime) {
+        double delta;
 
-            for (Element e : list) {
-                e.doStatistics(tnext - tcurr);
-            }
-            tcurr = tnext;
-            for (Element e : list) {
-                e.setTcurr(tcurr);
-            }
-            list.get(event).outAct();
-            for (Element e : list) {
-                if (e.getTnext() == tcurr) {
-                    e.outAct();
-                }
-            }
+        while (currentTime < totalSimulationTime) {
+            Element closestEventElement = findClosestEventElement(currentTime);
+
+            delta = closestEventElement.getNextEventTime() - currentTime;
+            currentTime = closestEventElement.getNextEventTime();
+
+            System.out.println("\nIt's time for event in " + closestEventElement.getName() + ", time = " + currentTime);
+
+            for (Element e : list)
+                e.doStatistics(delta);
+
+            for (Element e : list)
+                e.setCurrentModelTime(currentTime);
+
+            for (Element e : list)
+                if (e.getNextEventTime() == currentTime && e.state == Element.State.BUSY)
+                    e.finishExecution();
 
             printInfo();
         }
-        printResult();
+        printResult(currentTime);
+    }
+
+    private Element findClosestEventElement(double currentTime) {
+        return list.stream()
+                .filter(element -> element.getNextEventTime() >= currentTime)
+                .filter(element -> element.state == Element.State.BUSY)
+                .min(Comparator.comparingDouble(Element::getNextEventTime))
+                .get();
     }
 
     private void printInfo() {
-        for (Element e : list) {
-            e.printInfo();
-        }
+        for (Element e : list) e.printInfo();
     }
 
-    private void printResult() {
+    private void printResult(double totalTime) {
         System.out.println("\n-------------RESULTS-------------");
         for (Element e : list) {
-            e.printResult();
+            e.printResult(totalTime);
             if (e instanceof Process) {
                 Process p = (Process) e;
                 System.out.println("mean length of queue = " +
-                        p.getMeanQueue() / tcurr
+                        p.getMeanQueue() / totalTime
 
                         + "\nfailure probability = " +
-                        p.getFailure() / (double) p.getQuantity());
+                        p.getAmountOfDroppedEvents() / p.getProcessedEventsCount());
 
             }
         }

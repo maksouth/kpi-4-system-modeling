@@ -1,75 +1,71 @@
 package lab2.simsimple;
 
 public class Process extends Element {
-    private int queue, maxqueue, failure;
+    private double amountOfElementsToProcess;
+    private double maxAmountOfElementsToProcess;
+    private double amountOfDroppedEvents;
     private double meanQueue;
 
-    Process(double delay) {
+    Process(double delay, double maxAmountOfElementsToProcess) {
         super(delay, "PROCESSOR");
-        queue = 0;
-        maxqueue = Integer.MAX_VALUE;
+        this.maxAmountOfElementsToProcess = maxAmountOfElementsToProcess;
+        amountOfElementsToProcess = 0;
         meanQueue = 0.0;
-
     }
 
     @Override
     public void printInfo() {
         super.printInfo();
-        System.out.println("failure = " + this.getFailure());
+        System.out.println("dropped = " + this.getAmountOfDroppedEvents());
     }
 
     @Override
     public void doStatistics(double delta) {
         super.doStatistics(delta);
-        meanQueue = getMeanQueue() + queue * delta;
+        meanQueue += amountOfElementsToProcess * delta;
     }
 
     @Override
-    public void inAct() {
-        if (getState() == 0) {
-            setState(1);
-            setTnext(getTcurr() + getDelay());
+    public void startExecution() {
+        if (state == State.FREE) {
+            state = State.BUSY;
+            nextEventTime = getCurrentModelTime() + getDelay();
+
+        } else if (amountOfElementsToProcess < getMaxAmountOfElementsToProcess()) {
+            amountOfElementsToProcess += 1;
         } else {
-            if (getQueue() < getMaxqueue()) {
-                setQueue(getQueue() + 1);
-            } else {
-                failure++;
-            }
+            amountOfDroppedEvents++;
         }
     }
 
     @Override
-    public void outAct() {
-        super.outAct();
-        setTnext(Double.MAX_VALUE);
-        setState(0);
-        if (getQueue() > 0) {
-            setQueue(getQueue() - 1);
-            setState(1);
-            setTnext(getTcurr() + getDelay());
-            if (getNextElement() != null)
-                getNextElement().inAct();
+    public void finishExecution() {
+        super.finishExecution();
+
+        if (amountOfElementsToProcess > 0) {
+            amountOfElementsToProcess -= 1;
+            state = State.BUSY;
+            nextEventTime = getCurrentModelTime() + getDelay();
+        } else {
+            state = State.FREE;
+            nextEventTime = Double.MAX_VALUE;
         }
+
+        startNextElement();
     }
 
-    public int getFailure() {
-        return failure;
+    private void startNextElement() {
+        Element nextElement = getNextElement();
+        if (nextElement != null)
+            nextElement.startExecution();
     }
 
-    private int getQueue() {
-        return queue;
+    public double getAmountOfDroppedEvents() {
+        return amountOfDroppedEvents;
     }
 
-    private void setQueue(int queue) {
-        this.queue = queue;
-    }
-
-    private int getMaxqueue() {
-        return maxqueue;
-    }
-
-    public void setMaxqueue(int maxqueue) {
-        this.maxqueue = maxqueue;
+    private double getMaxAmountOfElementsToProcess() {
+        return maxAmountOfElementsToProcess;
     }
 
     public double getMeanQueue() {

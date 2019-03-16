@@ -4,16 +4,13 @@ public class Create extends Element {
 
     Create(double delay) {
         super(delay, "CREATOR");
-        setState(1);
+        state = State.BUSY;
     }
 
-
     @Override
-    public void outAct() {
-        super.outAct();
-
-        setState(0);
-        setTnext(getTcurr() + getDelay());
-        getNextElement().inAct();
+    public void finishExecution() {
+        super.finishExecution();
+        nextEventTime = getCurrentModelTime() + getDelay();
+        getNextElement().startExecution();
     }
 }

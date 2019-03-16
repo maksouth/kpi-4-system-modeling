@@ -5,32 +5,40 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
-public class Element {
+public abstract class Element {
+
+    public enum State {
+        BUSY(1), FREE(0);
+
+        private final int value;
+
+        State(int value) {
+            this.value = value;
+        }
+    }
 
     private static int uniqueId = 0;
+
+    protected State state;
+    protected double nextEventTime;
 
     private final String name;
     private final double delayMean;
     private final Random random = new Random();
     private final TreeMap<Double, Element> probabilityToNextElement;
-    private double tnext;
     private String distribution;
-    private int quantity;
-    private double tcurr;
-    private int state;
-    private int id;
-    private int loadCounter = 0;
-    private int totalEventCounter;
+    private double processedEventsCount;
+    private double currentModelTime;
+    private double loadedTime = 0;
 
     Element(double delay, String name){
-        tnext = 0.0;
+        nextEventTime = 0.0;
         delayMean = delay;
         distribution = "";
-        tcurr = tnext;
-        state=0;
+        state = State.FREE;
         probabilityToNextElement = new TreeMap<>(Comparator.reverseOrder());
 
-        id = uniqueId++;
+        int id = uniqueId++;
         this.name = name + "-" + id;
     }
 
@@ -48,28 +56,20 @@ public class Element {
         return delay;
     }
 
-    public void setDistribution(String distribution) {
+    void setDistribution(String distribution) {
         this.distribution = distribution;
     }
 
-    public int getQuantity() {
-        return quantity;
+    double getProcessedEventsCount() {
+        return processedEventsCount;
     }
 
-    double getTcurr() {
-        return tcurr;
+    double getCurrentModelTime() {
+        return currentModelTime;
     }
 
-    public void setTcurr(double tcurr) {
-        this.tcurr = tcurr;
-    }
-
-    int getState() {
-        return state;
-    }
-
-    void setState(int state) {
-        this.state = state;
+    void setCurrentModelTime(double currentModelTime) {
+        this.currentModelTime = currentModelTime;
     }
 
     Element getNextElement() {
@@ -85,38 +85,30 @@ public class Element {
         return next.getValue();
     }
 
-    public void addNextElement(Element nextElement, double probability) {
+    void addNextElement(Element nextElement, double probability) {
         double currentStackProbability = probabilityToNextElement.isEmpty() ? 0.0 : probabilityToNextElement.firstKey();
         double stackProbability = currentStackProbability + probability;
         probabilityToNextElement.put(stackProbability, nextElement);
     }
 
-    public void inAct() {}
+    public void startExecution() {}
 
-    public void outAct() {
-        quantity++;
+    public void finishExecution() {
+        processedEventsCount++;
     }
 
-    public double getTnext() {
-        return tnext;
-    }
-
-    void setTnext(double tnext) {
-        this.tnext = tnext;
+    public double getNextEventTime() {
+        return nextEventTime;
     }
     
-    public int getId() {
-        return id;
-    }
-    
-    public void printResult(){
-        System.out.println(getName()+ " quantity = "+ quantity + " average load = " + averageLoad());
+    public void printResult(double totalTime){
+        System.out.println(getName()+ " processedEventsCount = "+ processedEventsCount + " average load = " + loadPercentage(totalTime));
     }
     
     public void printInfo(){
-        System.out.println(getName()+ " state= " +state+
-                " quantity = "+ quantity +
-                " tnext= "+tnext);
+        System.out.println(getName()+ " " +state+
+                " processed = "+ processedEventsCount +
+                " next event time = "+ nextEventTime);
     }
     
     public String getName() {
@@ -124,11 +116,10 @@ public class Element {
     }
     
     public void doStatistics(double delta){
-        loadCounter += state;
-        totalEventCounter++;
+        loadedTime += state.value * delta;
     }
 
-    private double averageLoad() {
-        return (double) loadCounter / totalEventCounter;
+    private double loadPercentage(double totalTime) {
+        return loadedTime / totalTime;
     }
 }
