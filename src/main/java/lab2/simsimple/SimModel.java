@@ -1,5 +1,9 @@
 package lab2.simsimple;
 
+import entity.Create;
+import entity.Element;
+import entity.Process;
+
 import java.util.ArrayList;
 
 public class SimModel {

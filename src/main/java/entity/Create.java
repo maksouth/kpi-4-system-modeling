@@ -1,8 +1,8 @@
-package lab2.simsimple;
+package entity;
 
 public class Create extends Element {
 
-    Create(double delay) {
+    public Create(double delay) {
         super(delay, "CREATOR");
         state = State.BUSY;
     }

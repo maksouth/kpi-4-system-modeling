@@ -1,4 +1,6 @@
-package lab2.simsimple;
+package entity;
+
+import lab2.simsimple.FunRand;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -56,11 +58,11 @@ public abstract class Element {
         return delay;
     }
 
-    void setDistribution(String distribution) {
+    public void setDistribution(String distribution) {
         this.distribution = distribution;
     }
 
-    double getProcessedEventsCount() {
+    public double getProcessedEventsCount() {
         return processedEventsCount;
     }
 
@@ -68,7 +70,7 @@ public abstract class Element {
         return currentModelTime;
     }
 
-    void setCurrentModelTime(double currentModelTime) {
+    public void setCurrentModelTime(double currentModelTime) {
         this.currentModelTime = currentModelTime;
     }
 
@@ -85,7 +87,7 @@ public abstract class Element {
         return next.getValue();
     }
 
-    void addNextElement(Element nextElement, double probability) {
+    public void addNextElement(Element nextElement, double probability) {
         double currentStackProbability = probabilityToNextElement.isEmpty() ? 0.0 : probabilityToNextElement.firstKey();
         double stackProbability = currentStackProbability + probability;
         probabilityToNextElement.put(stackProbability, nextElement);
@@ -100,7 +102,11 @@ public abstract class Element {
     public double getNextEventTime() {
         return nextEventTime;
     }
-    
+
+    public State getState() {
+        return state;
+    }
+
     public void printResult(double totalTime){
         System.out.println(getName()+ " processedEventsCount = "+ processedEventsCount + " average load = " + loadPercentage(totalTime));
     }

@@ -1,20 +1,21 @@
 package lab2.simsimple;
 
+import entity.Element;
+import entity.Process;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Model {
+
     private ArrayList<Element> list;
-    private double currentTime;
-    private int event;
 
     Model(ArrayList<Element> elements) {
         list = elements;
-        currentTime = 0.0;
-        event = 0;
     }
 
     public void simulate(double totalSimulationTime) {
+        double currentTime = 0.0;
         double delta;
 
         while (currentTime < totalSimulationTime) {
@@ -32,7 +33,7 @@ public class Model {
                 e.setCurrentModelTime(currentTime);
 
             for (Element e : list)
-                if (e.getNextEventTime() == currentTime && e.state == Element.State.BUSY)
+                if (e.getNextEventTime() == currentTime && e.getState() == Element.State.BUSY)
                     e.finishExecution();
 
             printInfo();
@@ -43,7 +44,7 @@ public class Model {
     private Element findClosestEventElement(double currentTime) {
         return list.stream()
                 .filter(element -> element.getNextEventTime() >= currentTime)
-                .filter(element -> element.state == Element.State.BUSY)
+                .filter(element -> element.getState() == Element.State.BUSY)
                 .min(Comparator.comparingDouble(Element::getNextEventTime))
                 .get();
     }

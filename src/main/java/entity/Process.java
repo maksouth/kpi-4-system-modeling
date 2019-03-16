@@ -1,4 +1,4 @@
-package lab2.simsimple;
+package entity;
 
 public class Process extends Element {
     private double amountOfElementsToProcess;
@@ -6,7 +6,7 @@ public class Process extends Element {
     private double amountOfDroppedEvents;
     private double meanQueue;
 
-    Process(double delay, double maxAmountOfElementsToProcess) {
+    public Process(double delay, double maxAmountOfElementsToProcess) {
         super(delay, "PROCESSOR");
         this.maxAmountOfElementsToProcess = maxAmountOfElementsToProcess;
         amountOfElementsToProcess = 0;
