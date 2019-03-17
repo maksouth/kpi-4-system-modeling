@@ -1,13 +1,13 @@
 package lab3.entity;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public abstract class DelayedTask {
 
-    protected final Supplier<Double> delayGenerator;
+    protected final Function<Integer, Double> delayGenerator;
     protected double nextEventTime;
 
-    DelayedTask(Supplier<Double> delayGenerator) {
+    DelayedTask(Function<Integer, Double> delayGenerator) {
         this.delayGenerator = delayGenerator;
     }
 

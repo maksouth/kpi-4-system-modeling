@@ -27,13 +27,13 @@ public class CarBankModel {
 
         first = new Process(
                 4,
-                () -> FunRand.Exp(0.3),
+                (ignored) -> FunRand.Exp(0.3),
                 firstDispose,
                 MAX_PRIORITY
         );
         second = new Process(
                 4,
-                () -> FunRand.Exp(0.3),
+                (ignored) -> FunRand.Exp(0.3),
                 secondDispose,
                 MIN_PRIORITY
         );
@@ -53,7 +53,7 @@ public class CarBankModel {
 
         generator = new Create(
                 0.1,
-                () -> FunRand.Exp(0.5),
+                (ignored) -> FunRand.Exp(0.5),
                 Arrays.asList(first, second),
                 router
         );

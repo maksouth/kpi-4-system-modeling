@@ -3,6 +3,7 @@ package lab3.entity;
 import java.util.LinkedList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
@@ -19,7 +20,6 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
     private int droppedEvents;
     private int processedEvents;
 
-    protected double totalProcessTime;
     private BiConsumer<Entity, Double> next;
     private Consumer<Double> listener;
 
@@ -28,7 +28,7 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
     public Process(
             int maxQueueLength,
-            Supplier<Double> delayGenerator,
+            Function<Integer, Double> delayGenerator,
             BiConsumer<Entity, Double> next,
             int priority
     ) {
@@ -37,7 +37,7 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
     public Process(
             int maxQueueLength,
-            Supplier<Double> delayGenerator,
+            Function<Integer, Double> delayGenerator,
             BiConsumer<Entity, Double> next,
             Consumer<Double> listener,
             int priority
@@ -60,7 +60,7 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
         entity.setCreationTime(0.0);
         accept(entity, 0.0);
 
-        scheduleProcessing(0);
+        scheduleProcessing(entity, 0);
     }
 
     public void accept(Entity client, Double modelTime) {
@@ -68,21 +68,21 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
             clientsQueue.addLast(client);
         else droppedEvents++;
 
-        scheduleProcessing(modelTime);
+        scheduleProcessing(client, modelTime);
     }
 
-    private void scheduleProcessing(double modelTime) {
+    private void scheduleProcessing(Entity entity, double modelTime) {
         if (clientsQueue.size() > 0 && state == FREE) {
             state = BUSY;
-            calculateProcessingTime(modelTime);
+            calculateProcessingTime(entity, modelTime);
         } else {
             state = FREE;
             nextEventTime = Double.MAX_VALUE;
         }
     }
 
-    public void calculateProcessingTime(double modelTime) {
-        double processingTime = delayGenerator.get();
+    public void calculateProcessingTime(Entity entity, double modelTime) {
+        double processingTime = delayGenerator.apply(entity.getType());
         nextEventTime = modelTime + processingTime;
     }
 
@@ -92,7 +92,7 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
         next.accept(processed, nextEventTime);
         listener.accept(nextEventTime);
 
-        scheduleProcessing(nextEventTime);
+        scheduleProcessing(clientsQueue.getFirst(), nextEventTime);
     }
 
     @Override

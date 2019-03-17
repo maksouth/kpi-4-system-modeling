@@ -14,7 +14,7 @@ public class Create extends DelayedTask {
 
     public Create(
             double initialDelay,
-            Supplier<Double> delayGenerator,
+            Function<Integer, Double> delayGenerator,
             List<Process> consumers,
             Function<List<Process>, Process> router,
             Supplier<Integer> typeProducer
@@ -28,7 +28,7 @@ public class Create extends DelayedTask {
 
     public Create(
             double initialDelay,
-            Supplier<Double> delayGenerator,
+            Function<Integer, Double> delayGenerator,
             List<Process> consumers,
             Function<List<Process>, Process> router
     ) {
@@ -42,7 +42,7 @@ public class Create extends DelayedTask {
         router.apply(consumers).accept(entity, nextEventTime);
 
         createdEvents++;
-        nextEventTime += delayGenerator.get();
+        nextEventTime += delayGenerator.apply(0);
     }
 
     @Override
