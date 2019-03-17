@@ -23,7 +23,10 @@ public class Create extends DelayedTask {
     }
 
     public void processEvent() {
-        router.apply(consumers).accept(new Object(), nextEventTime);
+        Entity entity = new Entity();
+        entity.creationTime = nextEventTime;
+        router.apply(consumers).accept(entity, nextEventTime);
+
         createdEvents++;
         nextEventTime += delayGenerator.get();
     }

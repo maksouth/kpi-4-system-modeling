@@ -1,5 +1,6 @@
 package lab3.car_bank;
 
+import lab3.entity.Entity;
 import lab3.entity.Process;
 
 import java.util.function.Consumer;
@@ -24,7 +25,7 @@ public class LineSwitcher implements Consumer<Double> {
 
     private void compareAndSwitch(Process secondProcess, Process firstProcess, double modelTime) {
         if (firstProcess.getQueueLength() - secondProcess.getQueueLength() >= 2) {
-            Object removed = firstProcess.removeLastFromQueue();
+            Entity removed = firstProcess.removeLastFromQueue();
             secondProcess.accept(removed, modelTime);
             switchedCount++;
         }

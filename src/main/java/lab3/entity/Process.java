@@ -1,11 +1,12 @@
 package lab3.entity;
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class Process extends DelayedTask implements BiConsumer<Object, Double> {
+public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
     private static final int BUSY = 1;
     private static final int FREE = 0;
@@ -15,12 +16,12 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
 
     private int state = FREE;
 
-    private LinkedList<Object> clientsQueue = new LinkedList<>();
+    private LinkedList<Entity> clientsQueue = new LinkedList<>();
     private int droppedEvents;
     private int processedEvents;
 
     protected double totalProcessTime;
-    private BiConsumer<Object, Double> next;
+    private BiConsumer<Entity, Double> next;
     private Consumer<Double> listener;
 
     private double meanTime;
@@ -29,7 +30,7 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
     public Process(
             int maxQueueLength,
             Supplier<Double> delayGenerator,
-            BiConsumer<Object, Double> next,
+            BiConsumer<Entity, Double> next,
             int priority
     ) {
         this(maxQueueLength, delayGenerator, next, (ignored) -> {}, priority);
@@ -38,7 +39,7 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
     public Process(
             int maxQueueLength,
             Supplier<Double> delayGenerator,
-            BiConsumer<Object, Double> next,
+            BiConsumer<Entity, Double> next,
             Consumer<Double> listener,
             int priority
     ) {
@@ -48,12 +49,22 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
         this.maxQueueLength = maxQueueLength;
         this.priority = priority;
 
-        accept(new Object(), 0.0);
-        accept(new Object(), 0.0);
+        initialLaunch();
+    }
+
+    private void initialLaunch() {
+        Entity entity = new Entity();
+        entity.creationTime = 0.0;
+        accept(entity, 0.0);
+
+        entity = new Entity();
+        entity.creationTime = 0.0;
+        accept(entity, 0.0);
+
         scheduleProcessing(0);
     }
 
-    public void accept(Object client, Double modelTime) {
+    public void accept(Entity client, Double modelTime) {
         if (clientsQueue.size() < maxQueueLength)
             clientsQueue.addLast(client);
         else droppedEvents++;
@@ -73,12 +84,11 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
 
     public void calculateProcessingTime(double modelTime) {
         double processingTime = delayGenerator.get();
-
         nextEventTime = modelTime + processingTime;
     }
 
     public void processEvent() {
-        Object processed = clientsQueue.removeFirst();
+        Entity processed = clientsQueue.removeFirst();
         processedEvents++;
         next.accept(processed, nextEventTime);
         listener.accept(nextEventTime);
@@ -104,7 +114,7 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
         return clientsQueue.size();
     }
 
-    public Object removeLastFromQueue() {
+    public Entity removeLastFromQueue() {
         return clientsQueue.removeLast();
     }
 
