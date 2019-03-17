@@ -8,6 +8,7 @@ public class Create extends DelayedTask {
 
     private final Function<List<Process>, Process> router;
     private final List<Process> consumers;
+    private int createdEvents;
 
     public Create(
             double initialDelay,
@@ -23,11 +24,14 @@ public class Create extends DelayedTask {
 
     public void processEvent() {
         router.apply(consumers).accept(new Object(), nextEventTime);
+        createdEvents++;
         nextEventTime += delayGenerator.get();
     }
 
     @Override
-    public void calculateStats(double delta) {
+    public void calculateStats(double delta) {}
 
+    public void printInfo() {
+        System.out.println("Created " + createdEvents + " events");
     }
 }

@@ -13,18 +13,25 @@ public class CarBankModel {
     public static final int MIN_PRIORITY = 1;
     public static final int MAX_PRIORITY = 5;
 
+    Create generator;
+    Dispose firstDispose;
+    Dispose secondDispose;
+    private Process first;
+    private Process second;
+    private LineSwitcher lineSwitcher;
     private List<DelayedTask> tasks;
 
     public CarBankModel() {
-        Dispose firstDispose = new Dispose();
-        Dispose secondDispose = new Dispose();
-        Process first = new Process(
+        firstDispose = new Dispose();
+        secondDispose = new Dispose();
+
+        first = new Process(
                 4,
                 () -> FunRand.Exp(0.3),
                 firstDispose,
                 MAX_PRIORITY
         );
-        Process second = new Process(
+        second = new Process(
                 4,
                 () -> FunRand.Exp(0.3),
                 secondDispose,
@@ -39,12 +46,12 @@ public class CarBankModel {
                     .get();
         };
 
-        LineSwitcher lineSwitcher = new LineSwitcher(first, second);
+        lineSwitcher = new LineSwitcher(first, second);
 
         first.setListener(lineSwitcher);
         second.setListener(lineSwitcher);
 
-        Create generator = new Create(
+        generator = new Create(
                 0.1,
                 () -> FunRand.Exp(0.5),
                 Arrays.asList(first, second),
@@ -74,5 +81,18 @@ public class CarBankModel {
             for (DelayedTask item: processingItems)
                 item.processEvent();
         }
+
+        printInfo(currentTime);
+    }
+
+    private void printInfo(double currentTime) {
+        generator.printInfo();
+        lineSwitcher.printInfo();
+
+        first.printInfo(currentTime);
+        firstDispose.printInfo();
+
+        second.printInfo(currentTime);
+        secondDispose.printInfo();
     }
 }

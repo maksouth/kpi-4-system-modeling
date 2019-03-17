@@ -11,17 +11,20 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
     private static final int FREE = 0;
 
     private final int maxQueueLength;
+    private final int priority;
+
     private int state = FREE;
 
     private LinkedList<Object> clientsQueue = new LinkedList<>();
     private int droppedEvents;
+    private int processedEvents;
 
     protected double totalProcessTime;
     private BiConsumer<Object, Double> next;
-
     private Consumer<Double> listener;
 
-    private final int priority;
+    private double meanTime;
+    private double meanQueueLength;
 
     public Process(
             int maxQueueLength,
@@ -70,13 +73,13 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
 
     public void calculateProcessingTime(double modelTime) {
         double processingTime = delayGenerator.get();
-        totalProcessTime += processingTime;
 
         nextEventTime = modelTime + processingTime;
     }
 
     public void processEvent() {
         Object processed = clientsQueue.removeFirst();
+        processedEvents++;
         next.accept(processed, nextEventTime);
         listener.accept(nextEventTime);
 
@@ -85,7 +88,16 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
 
     @Override
     public void calculateStats(double delta) {
+        meanTime += state * delta;
+        meanQueueLength += state * clientsQueue.size();
+    }
 
+    public double getMeanTime() {
+        return meanTime;
+    }
+
+    public double getMeanQueueLength() {
+        return meanQueueLength;
     }
 
     public int getQueueLength() {
@@ -102,5 +114,13 @@ public class Process extends DelayedTask implements BiConsumer<Object, Double> {
 
     public void setListener(Consumer<Double> listener) {
         this.listener = listener;
+    }
+
+    public void printInfo(double currentTime) {
+        System.out.println("Mean time " + meanTime / currentTime +
+                " mean queue length " + meanQueueLength / currentTime +
+                " processed events " + processedEvents +
+                " failure probability " + (double) droppedEvents / processedEvents);
+
     }
 }

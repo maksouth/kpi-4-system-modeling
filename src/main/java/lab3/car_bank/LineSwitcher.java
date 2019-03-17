@@ -30,7 +30,7 @@ public class LineSwitcher implements Consumer<Double> {
         }
     }
 
-    public double getSwitchedCount() {
-        return switchedCount;
+    public void printInfo() {
+        System.out.println("Number of queue switches " + switchedCount);
     }
 }

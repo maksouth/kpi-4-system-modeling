@@ -8,4 +8,8 @@ public class Dispose implements BiConsumer<Object, Double> {
     public void accept(Object o, Double aDouble) {
 
     }
+
+    public void printInfo() {
+
+    }
 }
