@@ -60,8 +60,8 @@ fun main() {
     val tasks = listOf(generator, first, second)
     val model = Model(tasks)
 
-    model.simulate(1000.0)
-    printInfo(1000.0)
+    model.simulate(10000.0)
+    printInfo(10000.0)
 }
 
 private fun printInfo(currentTime: Double) {
