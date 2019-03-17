@@ -5,17 +5,14 @@ import java.util.function.Function;
 public abstract class DelayedTask {
 
     protected final Function<Integer, Double> delayGenerator;
-    protected double nextEventTime;
 
-    DelayedTask(Function<Integer, Double> delayGenerator) {
+    public DelayedTask(Function<Integer, Double> delayGenerator) {
         this.delayGenerator = delayGenerator;
     }
 
-    public abstract void processEvent();
+    public abstract void processEvent(double currentTime);
 
-    public double getFinishEventProcessingTime() {
-        return nextEventTime;
-    }
+    public abstract double getFinishEventProcessingTime();
 
     public abstract void calculateStats(double delta);
 }

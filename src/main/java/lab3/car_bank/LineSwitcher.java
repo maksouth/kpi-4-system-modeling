@@ -1,7 +1,7 @@
 package lab3.car_bank;
 
 import lab3.entity.Entity;
-import lab3.entity.Process;
+import lab3.entity.kotlin.Process;
 
 import java.util.function.Consumer;
 

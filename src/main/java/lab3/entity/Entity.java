@@ -5,6 +5,13 @@ public class Entity {
     private double creationTime;
     private double deletionTime;
 
+    public Entity(int type, double creationTime) {
+        this.type = type;
+        this.creationTime = creationTime;
+    }
+
+    public Entity() { }
+
     public int getType() {
         return type;
     }

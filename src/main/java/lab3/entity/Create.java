@@ -1,5 +1,6 @@
 package lab3.entity;
 
+import lab3.entity.kotlin.Process;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -11,6 +12,7 @@ public class Create extends DelayedTask {
     private final Supplier<Integer> typeProducer;
 
     private int createdEvents;
+    protected double nextEventTime;
 
     public Create(
             double initialDelay,
@@ -35,7 +37,11 @@ public class Create extends DelayedTask {
         this(initialDelay, delayGenerator, consumers, router, () -> 1);
     }
 
-    public void processEvent() {
+    public double getFinishEventProcessingTime() {
+        return nextEventTime;
+    }
+
+    public void processEvent(double currentTime) {
         Entity entity = new Entity();
         entity.setCreationTime(nextEventTime);
         entity.setType(typeProducer.get());

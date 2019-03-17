@@ -1,10 +1,10 @@
 package lab3.entity;
 
-import java.util.LinkedList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
@@ -13,10 +13,12 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
     private final int maxQueueLength;
     private final int priority;
+//    private final int workers;
 
     private int state = FREE;
+    protected double nextEventTime;
 
-    private LinkedList<Entity> clientsQueue = new LinkedList<>();
+    private PriorityQueue<Entity> clientsQueue;
     private int droppedEvents;
     private int processedEvents;
 
@@ -32,7 +34,31 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
             BiConsumer<Entity, Double> next,
             int priority
     ) {
-        this(maxQueueLength, delayGenerator, next, (ignored) -> {}, priority);
+        this(maxQueueLength,
+                delayGenerator,
+                next,
+                (ignored) -> {
+                },
+                priority,
+                Comparator.comparingDouble(Entity::getCreationTime)
+        );
+    }
+
+    public Process(
+            int maxQueueLength,
+            Function<Integer, Double> delayGenerator,
+            BiConsumer<Entity, Double> next,
+            int priority,
+            Comparator<Entity> comparator,
+            int workers
+    ) {
+        this(maxQueueLength,
+                delayGenerator,
+                next,
+                (ignored) -> {},
+                priority,
+                comparator
+        );
     }
 
     public Process(
@@ -40,15 +66,20 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
             Function<Integer, Double> delayGenerator,
             BiConsumer<Entity, Double> next,
             Consumer<Double> listener,
-            int priority
+            int priority,
+            Comparator<Entity> comparator
     ) {
         super(delayGenerator);
         this.next = next;
         this.listener = listener;
         this.maxQueueLength = maxQueueLength;
         this.priority = priority;
-
+        clientsQueue = new PriorityQueue<>(comparator);
         initialLaunch();
+    }
+
+    public double getFinishEventProcessingTime() {
+        return nextEventTime;
     }
 
     private void initialLaunch() {
@@ -65,7 +96,7 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
     public void accept(Entity client, Double modelTime) {
         if (clientsQueue.size() < maxQueueLength)
-            clientsQueue.addLast(client);
+            clientsQueue.add(client);
         else droppedEvents++;
 
         scheduleProcessing(client, modelTime);
@@ -86,13 +117,13 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
         nextEventTime = modelTime + processingTime;
     }
 
-    public void processEvent() {
-        Entity processed = clientsQueue.removeFirst();
+    public void processEvent(double currentTime) {
+        Entity processed = clientsQueue.remove();
         processedEvents++;
         next.accept(processed, nextEventTime);
         listener.accept(nextEventTime);
 
-        scheduleProcessing(clientsQueue.getFirst(), nextEventTime);
+        scheduleProcessing(clientsQueue.peek(), nextEventTime);
     }
 
     @Override
@@ -101,20 +132,16 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
         meanQueueLength += state * clientsQueue.size();
     }
 
-    public double getMeanTime() {
-        return meanTime;
-    }
-
-    public double getMeanQueueLength() {
-        return meanQueueLength;
-    }
-
     public int getQueueLength() {
         return clientsQueue.size();
     }
 
     public Entity removeLastFromQueue() {
-        return clientsQueue.removeLast();
+        Entity removed = clientsQueue.stream()
+                .max(Comparator.comparingDouble(Entity::getCreationTime))
+                .get();
+        clientsQueue.remove(removed);
+        return removed;
     }
 
     public int getPriority() {

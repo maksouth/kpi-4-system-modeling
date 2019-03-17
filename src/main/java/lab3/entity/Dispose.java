@@ -11,6 +11,7 @@ public class Dispose implements BiConsumer<Entity, Double> {
     @Override
     public void accept(Entity client, Double deletionTime) {
         client.setDeletionTime(deletionTime);
+        System.out.println("Processed " + client.getCreationTime() + " " + client.getDeletionTime());
         entities.add(client);
     }
 
