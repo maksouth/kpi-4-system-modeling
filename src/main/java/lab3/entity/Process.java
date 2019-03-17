@@ -1,7 +1,6 @@
 package lab3.entity;
 
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -54,11 +53,11 @@ public class Process extends DelayedTask implements BiConsumer<Entity, Double> {
 
     private void initialLaunch() {
         Entity entity = new Entity();
-        entity.creationTime = 0.0;
+        entity.setCreationTime(0.0);
         accept(entity, 0.0);
 
         entity = new Entity();
-        entity.creationTime = 0.0;
+        entity.setCreationTime(0.0);
         accept(entity, 0.0);
 
         scheduleProcessing(0);

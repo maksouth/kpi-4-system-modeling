@@ -8,7 +8,23 @@ public class Create extends DelayedTask {
 
     private final Function<List<Process>, Process> router;
     private final List<Process> consumers;
+    private final Supplier<Integer> typeProducer;
+
     private int createdEvents;
+
+    public Create(
+            double initialDelay,
+            Supplier<Double> delayGenerator,
+            List<Process> consumers,
+            Function<List<Process>, Process> router,
+            Supplier<Integer> typeProducer
+    ) {
+        super(delayGenerator);
+        this.nextEventTime = initialDelay;
+        this.router = router;
+        this.consumers = consumers;
+        this.typeProducer = typeProducer;
+    }
 
     public Create(
             double initialDelay,
@@ -16,15 +32,13 @@ public class Create extends DelayedTask {
             List<Process> consumers,
             Function<List<Process>, Process> router
     ) {
-        super(delayGenerator);
-        this.nextEventTime = initialDelay;
-        this.router = router;
-        this.consumers = consumers;
+        this(initialDelay, delayGenerator, consumers, router, () -> 1);
     }
 
     public void processEvent() {
         Entity entity = new Entity();
-        entity.creationTime = nextEventTime;
+        entity.setCreationTime(nextEventTime);
+        entity.setType(typeProducer.get());
         router.apply(consumers).accept(entity, nextEventTime);
 
         createdEvents++;

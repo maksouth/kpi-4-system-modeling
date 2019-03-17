@@ -1,8 +1,17 @@
 package lab3.entity;
 
 public class Entity {
-    double creationTime;
-    double deletionTime;
+    private int type;
+    private double creationTime;
+    private double deletionTime;
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     public double getCreationTime() {
         return creationTime;
