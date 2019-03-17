@@ -1,18 +1,18 @@
 package lab3.car_bank;
 
 import lab3.entity.Entity;
-import lab3.entity.kotlin.Process;
+import lab3.entity.kotlin.Operator;
 
 import java.util.function.Consumer;
 
 public class LineSwitcher implements Consumer<Double> {
 
-    private final Process firstProcess;
-    private final Process secondProcess;
+    private final Operator firstProcess;
+    private final Operator secondProcess;
 
     private double switchedCount;
 
-    public LineSwitcher(Process firstProcess, Process secondProcess) {
+    public LineSwitcher(Operator firstProcess, Operator secondProcess) {
         this.firstProcess = firstProcess;
         this.secondProcess = secondProcess;
     }
@@ -23,7 +23,7 @@ public class LineSwitcher implements Consumer<Double> {
         compareAndSwitch(secondProcess, firstProcess, modelTime);
     }
 
-    private void compareAndSwitch(Process secondProcess, Process firstProcess, double modelTime) {
+    private void compareAndSwitch(Operator secondProcess, Operator firstProcess, double modelTime) {
         if (firstProcess.getQueueLength() - secondProcess.getQueueLength() >= 2) {
             Entity removed = firstProcess.removeLastFromQueue();
             secondProcess.accept(removed, modelTime);

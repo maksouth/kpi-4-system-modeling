@@ -1,14 +1,14 @@
 package lab3.entity;
 
-import lab3.entity.kotlin.Process;
+import lab3.entity.kotlin.Operator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Create extends DelayedTask {
 
-    private final Function<List<Process>, Process> router;
-    private final List<Process> consumers;
+    private final Function<List<Operator>, Operator> router;
+    private final List<Operator> consumers;
     private final Supplier<Integer> typeProducer;
 
     private int createdEvents;
@@ -17,8 +17,8 @@ public class Create extends DelayedTask {
     public Create(
             double initialDelay,
             Function<Integer, Double> delayGenerator,
-            List<Process> consumers,
-            Function<List<Process>, Process> router,
+            List<Operator> consumers,
+            Function<List<Operator>, Operator> router,
             Supplier<Integer> typeProducer
     ) {
         super(delayGenerator);
@@ -31,8 +31,8 @@ public class Create extends DelayedTask {
     public Create(
             double initialDelay,
             Function<Integer, Double> delayGenerator,
-            List<Process> consumers,
-            Function<List<Process>, Process> router
+            List<Operator> consumers,
+            Function<List<Operator>, Operator> router
     ) {
         this(initialDelay, delayGenerator, consumers, router, () -> 1);
     }

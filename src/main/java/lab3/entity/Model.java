@@ -29,8 +29,11 @@ public class Model {
 
             currentTime = nextEventTime;
 
-            for (DelayedTask item: processingItems)
+            System.out.println("Time " + currentTime);
+            for (DelayedTask item: processingItems) {
+                System.out.println("Processing item " + item);
                 item.processEvent(currentTime);
+            }
         }
     }
 }

@@ -52,4 +52,16 @@ public class FunRand {
         a = timeMean + timeDeviation * r.nextGaussian();
         return a;
     }
+
+    public static double Erlang(double mean, double k) {
+        double randomProduct = 1;
+        Random random = new Random();
+
+        for (int i = 0; i < k; i++)
+            randomProduct *= random.nextDouble();
+
+        return - Math.log(randomProduct) / (k * mean);
+
+
+    }
 }

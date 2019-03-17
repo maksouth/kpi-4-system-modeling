@@ -10,15 +10,16 @@ import java.util.function.Function
 const val HIGH_PRIORITY = 5
 const val LOW_PRIORITY = 1
 
-class Process(
-    private val next: BiConsumer<Entity, Double>,
-    randomFunction: Function<Int, Double>,
+class Operator(
+    private val next: List<BiConsumer<Entity, Double>>,
+    randomFunction: (Int) -> Double,
     initialEntities: List<Entity> = emptyList(),
     private var listener: Consumer<Double> = Consumer {},
     entityComparator: Comparator<Entity> = Comparator.comparingDouble { it.creationTime },
     private val maxQueueSize: Int = Int.MAX_VALUE,
     private val priority: Int = HIGH_PRIORITY,
-    private val workers: Int = 1
+    private val workers: Int = 1,
+    private val router: (List<BiConsumer<Entity, Double>>, Int) -> BiConsumer<Entity, Double> = { list, _ -> list.first() }
 ): DelayedTask(randomFunction), BiConsumer<Entity, Double> {
 
     private val workerThreads = PriorityQueue<WorkerThread>(kotlin.Comparator { o1, o2 -> o1.eventTime.compareTo(o2.eventTime) })
@@ -45,7 +46,7 @@ class Process(
             val processed = workerThreads.remove()
             processedEvents++
 
-            next.accept(processed.entity, currentTime)
+            router(next, processed.entity.type).accept(processed.entity, currentTime)
             listener.accept(currentTime)
 
             scheduleProcessing(currentTime)

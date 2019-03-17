@@ -1,13 +1,7 @@
 package lab3.car_bank;
 
-import lab2.simsimple.FunRand;
 import lab3.entity.*;
-import lab3.entity.kotlin.Process;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Function;
+import lab3.entity.kotlin.Operator;
 
 public class Simulation {
 
@@ -17,8 +11,8 @@ public class Simulation {
     static Create generator;
     static Dispose firstDispose;
     static Dispose secondDispose;
-    static private Process first;
-    static private Process second;
+    static private Operator first;
+    static private Operator second;
     static private LineSwitcher lineSwitcher;
 
     public static void main(String[] args) {
@@ -26,24 +20,24 @@ public class Simulation {
 //        firstDispose = new Dispose();
 //        secondDispose = new Dispose();
 //
-//        first = new Process(
+//        first = new Operator(
 //                firstDispose,
 //                (ignored) -> FunRand.Exp(0.3),
 //                4,
 //                MAX_PRIORITY
 //        );
-//        second = new Process(
+//        second = new Operator(
 //                4,
 //                (ignored) -> FunRand.Exp(0.3),
 //                secondDispose,
 //                MIN_PRIORITY
 //        );
 //
-//        Function<List<Process>, Process> router = (processes) -> {
-//            double min = processes.stream().map(Process::getQueueLength).min(Comparator.naturalOrder()).get();
+//        Function<List<Operator>, Operator> router = (processes) -> {
+//            double min = processes.stream().map(Operator::getQueueLength).min(Comparator.naturalOrder()).get();
 //            return processes.stream()
 //                    .filter(item -> item.getQueueLength() == min)
-//                    .max(Comparator.comparingInt(Process::getPriority))
+//                    .max(Comparator.comparingInt(Operator::getPriority))
 //                    .get();
 //        };
 //
