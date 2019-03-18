@@ -10,6 +10,8 @@ import java.util.function.Function
 const val HIGH_PRIORITY = 5
 const val LOW_PRIORITY = 1
 
+var idCounter = 1
+
 class Operator(
     private val next: List<BiConsumer<Entity, Double>>,
     randomFunction: (Int) -> Double,
@@ -19,7 +21,8 @@ class Operator(
     private val maxQueueSize: Int = Int.MAX_VALUE,
     private val priority: Int = HIGH_PRIORITY,
     private val workers: Int = 1,
-    private val router: (List<BiConsumer<Entity, Double>>, Int) -> BiConsumer<Entity, Double> = { list, _ -> list.first() }
+    private val router: (List<BiConsumer<Entity, Double>>, Int) -> BiConsumer<Entity, Double> = { list, _ -> list.first() },
+    private val name: String = "Operator ${idCounter++}"
 ): DelayedTask(randomFunction), BiConsumer<Entity, Double> {
 
     private val workerThreads = PriorityQueue<WorkerThread>(kotlin.Comparator { o1, o2 -> o1.eventTime.compareTo(o2.eventTime) })
@@ -42,7 +45,7 @@ class Operator(
     }
 
     override fun processEvent(currentTime: Double) {
-        if(nextEventTime == currentTime) {
+        if(nextEventTime == currentTime && workerThreads.size > 0) {
             val processed = workerThreads.remove()
             processedEvents++
 
@@ -90,7 +93,7 @@ class Operator(
     }
 
     fun printInfo(currentTime:Double) = println(
-        "Mean time " + meanTime / currentTime +
+        "Name $name Mean time " + meanTime / currentTime +
         " mean queue length " + meanQueueLength / currentTime +
         " processed events " + processedEvents +
         " failure probability " + droppedEvents.toDouble() / processedEvents

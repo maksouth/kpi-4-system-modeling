@@ -6,8 +6,9 @@ import lab3.entity.Entity
 class Create(
     delayGenerator: (Int) -> Double,
     private val consumers: List<Operator>,
-    private val router: (List<Operator>) -> Operator,
+    private val router: (List<Operator>) -> Operator = { it.first() },
     private val typeProducer: () -> Int = {1},
+    private val maxElementsNum: Int = Int.MAX_VALUE,
     initialDelay: Double = 0.0
 ): DelayedTask(delayGenerator) {
 
@@ -20,7 +21,9 @@ class Create(
         router(consumers).accept(entity, nextEventTime)
 
         createdEvents++
-        nextEventTime += delayGenerator.apply(0)
+        if (createdEvents < maxElementsNum)
+            nextEventTime += delayGenerator.apply(0)
+        else nextEventTime = Double.MAX_VALUE
     }
 
     override fun getFinishEventProcessingTime() = nextEventTime

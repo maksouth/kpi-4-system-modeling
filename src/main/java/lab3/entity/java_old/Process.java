@@ -1,4 +1,7 @@
-package lab3.entity;
+package lab3.entity.java_old;
+
+import lab3.entity.DelayedTask;
+import lab3.entity.Entity;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;

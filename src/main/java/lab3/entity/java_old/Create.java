@@ -1,5 +1,7 @@
-package lab3.entity;
+package lab3.entity.java_old;
 
+import lab3.entity.DelayedTask;
+import lab3.entity.Entity;
 import lab3.entity.kotlin.Operator;
 import java.util.List;
 import java.util.function.Function;
